@@ -3,8 +3,8 @@
 *.swp
 *.tmp
 cmd/block/block
-cmd/dual/dual
-cmd/simple/simple
+cmd/canvas/canvas
 cmd/color/color
+cmd/simple/simple
 include.txt
 minimap
