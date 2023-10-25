@@ -56,6 +56,7 @@ func Simple(contents string, targetLineLength, targetOutputLines int) string {
 	return strings.TrimSpace(sb.String())
 }
 
+// Block creates a minimap of the given text, using block characters
 func Block(contents string, targetLineLength, targetOutputLines int) string {
 	// If targetOutputLines is 0, return an empty string
 	if targetOutputLines == 0 {
