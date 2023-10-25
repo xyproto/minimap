@@ -26,6 +26,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	s := minimap.Dual(string(data), 40, 10)
+	s := minimap.Block(string(data), 40, 10)
 	fmt.Println(s)
 }

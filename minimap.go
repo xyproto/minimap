@@ -56,32 +56,37 @@ func Simple(contents string, targetLineLength, targetOutputLines int) string {
 	return strings.TrimSpace(sb.String())
 }
 
-// Dual function creates a detailed minimap using the ".:'" technique.
-func Dual(contents string, targetLineLength, targetOutputLines int) string {
+func Block(contents string, targetLineLength, targetOutputLines int) string {
 	// If targetOutputLines is 0, return an empty string
 	if targetOutputLines == 0 {
 		return ""
 	}
 
 	intermediateMap := Simple(contents, targetLineLength, 2*targetOutputLines)
+
+	// Convert the intermediate map to the dual representation
 	lines := strings.Split(intermediateMap, "\n")
 
 	var sb strings.Builder
 	for i := 0; i < len(lines); i += 2 {
-		upper := lines[i]
-		lower := ""
-		if i+1 < len(lines) {
-			lower = lines[i+1]
-		}
-
 		for j := 0; j < targetLineLength; j++ {
-			if j < len(upper) && upper[j] == '*' && (j >= len(lower) || lower[j] != '*') {
-				sb.WriteByte('\'')
-			} else if j < len(lower) && lower[j] == '*' && (j >= len(upper) || upper[j] != '*') {
-				sb.WriteByte('.')
-			} else if j < len(upper) && upper[j] == '*' && j < len(lower) && lower[j] == '*' {
-				sb.WriteByte(':')
-			} else {
+			upper := false
+			lower := false
+			if j < len(lines[i]) && lines[i][j] == '*' {
+				upper = true
+			}
+			if i+1 < len(lines) && j < len(lines[i+1]) && lines[i+1][j] == '*' {
+				lower = true
+			}
+
+			switch {
+			case upper && !lower:
+				sb.WriteRune('▀') // upper half block
+			case !upper && lower:
+				sb.WriteRune('▄') // lower half block
+			case upper && lower:
+				sb.WriteRune('█') // full block
+			default:
 				sb.WriteByte(' ')
 			}
 		}
