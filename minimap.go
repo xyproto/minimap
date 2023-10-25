@@ -4,64 +4,88 @@ import (
 	"strings"
 )
 
+// Simple function creates a basic minimap of the contents.
 func Simple(contents string, targetLineLength, targetOutputLines int) string {
-	var (
-		lines        = strings.Split(strings.TrimSpace(contents), "\n")
-		lenLines     = len(lines)
-		batchCounter = 0
-		lengthMap    = make(map[int]float64)
-		maxLength    = 0
-	)
-
-	batchSize := 0
-	if targetOutputLines > 1 {
-		batchSize = lenLines / (targetOutputLines - 1)
+	if targetOutputLines == 0 {
+		return ""
 	}
 
-	if batchSize <= 0 {
-		for i := 0; i < lenLines; i++ {
-			line := lines[i]
-			lenLine := len(line)
+	lines := strings.Split(contents, "\n")
+	lenLines := len(lines)
+	if lenLines == 0 {
+		return ""
+	}
 
-			if prev, ok := lengthMap[0]; !ok {
-				lengthMap[0] = float64(lenLine)
-			} else {
-				lengthMap[0] = (prev + float64(lenLine)) / 2.0
-			}
+	batchSize := lenLines / targetOutputLines
+	remainder := lenLines % targetOutputLines
+	if batchSize == 0 {
+		return strings.Repeat("\n", targetOutputLines-1) // only empty lines
+	}
 
-			if lenLine > maxLength {
-				maxLength = lenLine
-			}
+	lineSums := make([]float64, targetOutputLines)
+	maxBatchAverage := 0.0
+
+	for i, line := range lines {
+		batchIndex := i / batchSize
+		if batchIndex >= targetOutputLines {
+			batchIndex = targetOutputLines - 1 // for remainders
 		}
-	} else {
-		for i := 0; i < lenLines; i++ {
-			line := lines[i]
-			lenLine := len(line)
 
-			if i%batchSize == 0 {
-				batchCounter++
-			}
+		lineSums[batchIndex] += float64(len(line))
+	}
 
-			if prev, ok := lengthMap[batchCounter]; !ok {
-				lengthMap[batchCounter] = float64(lenLine)
-			} else {
-				lengthMap[batchCounter] = (prev + float64(lenLine)) / 2.0
-			}
+	for i, sum := range lineSums {
+		divider := batchSize
+		if i == targetOutputLines-1 && remainder != 0 {
+			divider = remainder
+		}
+		average := sum / float64(divider)
+		lineSums[i] = average
 
-			if lenLine > maxLength {
-				maxLength = lenLine
-			}
+		if average > maxBatchAverage {
+			maxBatchAverage = average
 		}
 	}
 
-	// maxLength * ? = targetLineLength
-	// ? = targetLineLength / maxLength
-	scaleDown := float64(targetLineLength) / float64(maxLength)
+	scaleDown := float64(targetLineLength) / maxBatchAverage
 
 	var sb strings.Builder
-	for i := 0; i < len(lengthMap); i++ {
-		lineLength := lengthMap[i]
-		sb.WriteString(strings.Repeat("*", int(lineLength*scaleDown)) + "\n")
+	for _, avg := range lineSums {
+		sb.WriteString(strings.Repeat("*", int(avg*scaleDown)) + "\n")
+	}
+	return strings.TrimSpace(sb.String())
+}
+
+// Dual function creates a detailed minimap using the ".:'" technique.
+func Dual(contents string, targetLineLength, targetOutputLines int) string {
+	// If targetOutputLines is 0, return an empty string
+	if targetOutputLines == 0 {
+		return ""
+	}
+
+	intermediateMap := Simple(contents, targetLineLength, 2*targetOutputLines)
+	lines := strings.Split(intermediateMap, "\n")
+
+	var sb strings.Builder
+	for i := 0; i < len(lines); i += 2 {
+		upper := lines[i]
+		lower := ""
+		if i+1 < len(lines) {
+			lower = lines[i+1]
+		}
+
+		for j := 0; j < targetLineLength; j++ {
+			if j < len(upper) && upper[j] == '*' && (j >= len(lower) || lower[j] != '*') {
+				sb.WriteByte('\'')
+			} else if j < len(lower) && lower[j] == '*' && (j >= len(upper) || upper[j] != '*') {
+				sb.WriteByte('.')
+			} else if j < len(upper) && upper[j] == '*' && j < len(lower) && lower[j] == '*' {
+				sb.WriteByte(':')
+			} else {
+				sb.WriteByte(' ')
+			}
+		}
+		sb.WriteByte('\n')
 	}
 	return strings.TrimSpace(sb.String())
 }
