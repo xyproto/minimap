@@ -5,6 +5,7 @@ go 1.21.3
 require (
 	github.com/xyproto/mode v0.7.15
 	github.com/xyproto/textoutput v1.15.10
+	github.com/xyproto/vt100 v1.12.7
 )
 
 require (
@@ -14,6 +15,5 @@ require (
 	github.com/nathan-fiscaletti/consolesize-go v0.0.0-20220204101620-317176b6684d // indirect
 	github.com/pkg/term v1.2.0-beta.2.0.20210419004637-f749b98bd0ba // indirect
 	github.com/xyproto/env/v2 v2.2.4 // indirect
-	github.com/xyproto/vt100 v1.12.7 // indirect
 	golang.org/x/sys v0.13.0 // indirect
 )
