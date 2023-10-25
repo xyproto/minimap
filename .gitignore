@@ -2,5 +2,6 @@
 *.o
 *.swp
 *.tmp
+cmd/simple/simple
 include.txt
 minimap
