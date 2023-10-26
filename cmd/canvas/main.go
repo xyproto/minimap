@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/xyproto/minimap"
 	"github.com/xyproto/mode"
@@ -18,6 +19,14 @@ func main() {
 	if filename == "" {
 		log.Println("please provide a filename as the first argument")
 		os.Exit(1)
+	}
+
+	highlightIndex := 7
+	if len(os.Args) > 2 {
+		highlightString := os.Args[2]
+		if i, err := strconv.Atoi(highlightString); err == nil {
+			highlightIndex = i
+		}
 	}
 
 	data, err := os.ReadFile(filename)
@@ -49,7 +58,7 @@ func main() {
 	var xpos = cw - (width + margin)
 	const ypos = margin
 
-	err = minimap.DrawMinimap(c, string(data), xpos, ypos, width, height, fileMode, 7, vt100.DarkGray, vt100.Black, vt100.LightYellow, vt100.BackgroundBlack)
+	err = minimap.DrawMinimap(c, string(data), xpos, ypos, width, height, fileMode, highlightIndex, vt100.DarkGray, vt100.Black, vt100.LightYellow, vt100.BackgroundBlack)
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)

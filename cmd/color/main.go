@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/xyproto/minimap"
 	"github.com/xyproto/mode"
@@ -21,6 +22,14 @@ func main() {
 		os.Exit(1)
 	}
 
+	highlightIndex := 10
+	if len(os.Args) > 2 {
+		highlightString := os.Args[2]
+		if i, err := strconv.Atoi(highlightString); err == nil {
+			highlightIndex = i
+		}
+	}
+
 	data, err := os.ReadFile(filename)
 	if err != nil {
 		log.Println(err)
@@ -34,7 +43,7 @@ func main() {
 	const width = 20
 	const height = 40
 
-	s, err := minimap.ColorMinimap(string(data), width, height, fileMode, 5)
+	s, err := minimap.ColorMinimap(string(data), width, height, fileMode, highlightIndex)
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)

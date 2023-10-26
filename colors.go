@@ -22,6 +22,8 @@ func ColorMinimap(data string, width, height int, m mode.Mode, highlightIndex in
 	widthStep := max(1, len(lines[0])/width)
 	heightStep := max(1, len(lines)/height)
 
+	representativeHighlight := highlightIndex / heightStep
+
 	var result strings.Builder
 	o := textoutput.New()
 
@@ -33,11 +35,11 @@ func ColorMinimap(data string, width, height int, m mode.Mode, highlightIndex in
 	}
 
 	for i := 0; i < min(len(lines), height*heightStep); i += heightStep {
+		minimapLine := i / heightStep
 		for j := 0; j < min(len(lines[i]), width*widthStep); j += widthStep {
 			color := determineColor(string(lines[i][j]), m)
 
-			// Highlight using LightYellow if the line is within the highlight range
-			if i <= highlightIndex && highlightIndex < i+heightStep {
+			if minimapLine == representativeHighlight {
 				result.WriteString(o.LightYellow("█"))
 			} else {
 				result.WriteString(o.Tags("<" + color + ">█<off>"))
@@ -63,14 +65,17 @@ func DrawMinimap(c *vt100.Canvas, data string, x, y, width, height int, m mode.M
 	widthStep := max(1, len(lines[0])/width)
 	heightStep := max(1, len(lines)/height)
 
+	representativeHighlight := highlightIndex / heightStep
+
 	for i := 0; i < min(len(lines), height*heightStep); i += heightStep {
+		minimapLine := i / heightStep
 		for j := 0; j < min(len(lines[i]), width*widthStep); j += widthStep {
 			char := string(lines[i][j])
 			color := contentColor
 			if char == " " {
 				color = spaceColor
 			}
-			if i <= highlightIndex && highlightIndex < i+heightStep {
+			if minimapLine == representativeHighlight {
 				c.WriteRune(uint(x+j/widthStep), uint(y+i/heightStep), highlightColor, bgColor, '█')
 			} else {
 				c.WriteRune(uint(x+j/widthStep), uint(y+i/heightStep), color, bgColor, '█')
