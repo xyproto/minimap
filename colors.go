@@ -85,3 +85,39 @@ func DrawMinimap(c *vt100.Canvas, data string, x, y, width, height int, m mode.M
 
 	return nil
 }
+
+// DrawBackgroundMinimap draws a colored representation of the given text onto a vt100.Canvas.
+// x and y are the starting coordinates on the canvas.
+// width and height are the number of characters and lines for the minimap.
+// highlightIndex is the line index to be highlighted in the minimap. Use -1 for no highlight.
+// All given colors are background colors.
+func DrawBackgroundMinimap(c *vt100.Canvas, data string, x, y, width, height int, m mode.Mode, highlightIndex int, contentColor, spaceColor, highlightColor vt100.AttributeColor) error {
+	if width <= 0 || height <= 0 {
+		return errors.New("width and height must both be positive integers")
+	}
+
+	lines := strings.Split(data, "\n")
+
+	widthStep := max(1, len(lines[0])/width)
+	heightStep := max(1, len(lines)/height)
+
+	representativeHighlight := highlightIndex / heightStep
+
+	for i := 0; i < min(len(lines), height*heightStep); i += heightStep {
+		minimapLine := i / heightStep
+		for j := 0; j < min(len(lines[i]), width*widthStep); j += widthStep {
+			char := string(lines[i][j])
+			color := contentColor
+			if char == " " {
+				color = spaceColor
+			}
+			if minimapLine == representativeHighlight {
+				c.WriteBackground(uint(x+j/widthStep), uint(y+i/heightStep), highlightColor.Background())
+			} else {
+				c.WriteBackground(uint(x+j/widthStep), uint(y+i/heightStep), color.Background())
+			}
+		}
+	}
+
+	return nil
+}
