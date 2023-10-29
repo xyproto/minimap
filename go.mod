@@ -5,7 +5,7 @@ go 1.21.3
 require (
 	github.com/xyproto/mode v0.7.15
 	github.com/xyproto/textoutput v1.15.10
-	github.com/xyproto/vt100 v1.12.7
+	github.com/xyproto/vt100 v1.12.9
 )
 
 require (
