@@ -7,20 +7,6 @@ import (
 	"github.com/xyproto/vt100"
 )
 
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
 func normalizeLine(line string, length int) string {
 	if len(line) > length {
 		return line[:length]
@@ -41,8 +27,13 @@ func DrawBackgroundMinimap(c *vt100.Canvas, data string, x, y, width, height int
 	}
 
 	for i := 0; i < height; i++ {
-		srcLineIndex := i * len(lines) / height
+		startSrcLineIndex := i * len(lines) / height
+		endSrcLineIndex := (i + 1) * len(lines) / height
+
+		// Determine the representative line for this minimap line
+		srcLineIndex := startSrcLineIndex
 		currentLine := normalizeLine(lines[srcLineIndex], width)
+
 		for j := 0; j < width; j++ {
 			srcCharIndex := j * len(currentLine) / width
 			char := string(currentLine[srcCharIndex])
@@ -50,7 +41,7 @@ func DrawBackgroundMinimap(c *vt100.Canvas, data string, x, y, width, height int
 			if char == " " {
 				color = spaceColor
 			}
-			if srcLineIndex == highlightIndex {
+			if highlightIndex >= startSrcLineIndex && highlightIndex < endSrcLineIndex {
 				c.WriteBackground(uint(x+j), uint(y+i), highlightColor)
 			} else {
 				c.WriteBackground(uint(x+j), uint(y+i), color)
