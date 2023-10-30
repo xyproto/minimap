@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/xyproto/minimap"
-	"github.com/xyproto/mode"
 	"github.com/xyproto/vt100"
 )
 
@@ -35,9 +34,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Use mode.SimpleDetect to detect the mode based on the file contents
-	fileMode := mode.SimpleDetectBytes(data)
-
 	// Initialize vt100 terminal settings
 	vt100.Init()
 	defer vt100.Close() // ensure that terminal settings are reset when we're done
@@ -58,7 +54,11 @@ func main() {
 	var xpos = cw - (width + margin)
 	const ypos = margin
 
-	err = minimap.DrawBackgroundMinimap(c, string(data), xpos, ypos, width, height, fileMode, highlightIndex, vt100.Cyan, vt100.DefaultBackground, vt100.LightGray)
+	text := vt100.BackgroundWhite
+	spaces := vt100.BackgroundDefault
+	highlight := vt100.BackgroundRed
+
+	err = minimap.DrawBackgroundMinimap(c, string(data), xpos, ypos, width, height, highlightIndex, text, spaces, highlight)
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)
